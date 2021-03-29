@@ -5,13 +5,18 @@ module Base32
 
   def self.encode(number : Int) : String
     return "0" if number == 0_i64
-    array = Array(Char).new
+
+    array = Deque(Char).new(13) # max spaces for Int64::MAX
+
     while number > 0_i64
       index  = number %  32_i64 # divmod is a bit slow
       number = number >> 5      # number / 32
       array << ENCODE_MAP[index]
     end
-    return array.reverse.join
+
+    return String.build(capacity: array.size) do |s|
+      array.reverse_each{|char| s << char}
+    end
   end
 
   def self.decode(string) : Int
